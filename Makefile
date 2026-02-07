@@ -16,6 +16,7 @@ QEMU_FLAGS ?= -M q35 -m 2G -serial stdio -display gtk
 OVMF_CODE ?= $(firstword \
     $(wildcard /usr/share/OVMF/OVMF_CODE_4M.fd) \
     $(wildcard /usr/share/OVMF/OVMF_CODE.fd) \
+	$(wildcard /usr/share/OVMF/x64/OVMF_CODE.4m.fd) \
     $(wildcard /usr/share/edk2/ovmf/OVMF_CODE.fd) \
     $(wildcard /usr/share/edk2-ovmf/x64/OVMF_CODE.fd) \
     $(wildcard /usr/share/qemu/ovmf-x86_64-code.fd) \
