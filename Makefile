@@ -5,7 +5,7 @@ CFLAGS = -target x86_64-unknown-elf \
          -ffreestanding -fno-pic -fno-pie -mno-red-zone \
          -fno-stack-protector -fshort-wchar -Wall -O2 \
 		 -Ikernel -Ikernel/libkernel/include \
-		 -MMD -MP -mcmodel=kernel
+		 -MMD -MP -mcmodel=kernel 
 
 LDFLAGS = -T x86-64.lds -nostdlib
 
