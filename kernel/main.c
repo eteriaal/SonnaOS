@@ -1,4 +1,4 @@
-// main.c v0.Estella.1.0 
+// main.c Estella
 //
 // Entry point for the Estella kernel using the Limine bootloader protocol.
 // It initializes the framebuffer, loads a PSF1 font module, initializes pmm, display some text and tests
@@ -13,6 +13,9 @@
 #include "fbtext.h"
 #include "bootdate.h"
 #include "pmm.h"
+#include "gdt.h"
+
+#define ESTELLA_VERSION "v0.Estella.2.0"
 
 #define COL_TITLE 0x88DDFF
 #define COL_VERSION 0xAADD88
@@ -141,12 +144,18 @@ void kmain(void) {
     size_t y = 10;
 
     pmm_init(memmap_request.response, hhdm_offset);
+    fb_put_string(fb, font, glyphs_addr, "PMM initialized successfully", 10, y, 0x00FF00);
+    y += 18;
+    init_gdt();
+    fb_put_string(fb, font, glyphs_addr, "GDT loaded successfully", 10, y, 0x00FF00);
+    y += 22;
+
 
     fb_put_string(fb, font, glyphs_addr, "SonnaOS", 10, y, COL_TITLE);
     fb_put_string(fb, font, glyphs_addr, "https://github.com/eteriaal/SonnaOS", 10 + 7*8 + 8, y, 0x777799);
     y += 22;
 
-    fb_put_string(fb, font, glyphs_addr, "v0.Estella.1.0 x86_64 EFI | limine protocol", 10, y, COL_VERSION);
+    fb_put_string(fb, font, glyphs_addr, ESTELLA_VERSION " x86_64 EFI | limine protocol", 10, y, COL_VERSION);
     y += 22;
 
     fb_put_string(fb, font, glyphs_addr, "Using Spleen font 8x16 .psfu (psf1)", 10, y, 0xAAAAAA);

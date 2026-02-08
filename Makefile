@@ -5,13 +5,15 @@ CFLAGS = -target x86_64-unknown-elf \
          -ffreestanding -fno-pic -fno-pie -mno-red-zone \
          -fno-stack-protector -fshort-wchar -Wall -O2 \
 		 -Ikernel -Ikernel/libkernel/include \
-		 -MMD -MP -mcmodel=kernel 
+		 -MMD -MP -mcmodel=kernel -fno-omit-frame-pointer \
+		 -mno-sse -mno-sse2 -mno-avx -mno-avx2 -mno-avx512f
 
-LDFLAGS = -T x86-64.lds -nostdlib
+LDFLAGS = -T x86-64.lds -nostdlib -g
 
 LIMINE_DIR ?= ./limine
 QEMU ?= qemu-system-x86_64
-QEMU_FLAGS ?= -M q35 -m 2G -serial stdio -display gtk
+QEMU_FLAGS ?= -M q35 -m 2G -serial stdio -display gtk \
+			-no-reboot -no-shutdown
 
 OVMF_CODE ?= $(firstword \
     $(wildcard /usr/share/OVMF/OVMF_CODE_4M.fd) \
