@@ -6,11 +6,12 @@ Writing an operating system because I want to occupy my time...
 
 ### Current status
 - Boots via Limine kernel protocol
+- GDT: kernel and user segments
 - Simple bitmap-based physical memory manager
 - Framebuffer console with Spleen 8x16 font (PSF1)
 - Debug output: boot info, memory map, PMM alloc/free tests
 
-Next: PSF2, GDT, TSS, IDT
+Next: IDT, PSF2, TSS
 
 ![screenshot](sonnaos.png)
 
