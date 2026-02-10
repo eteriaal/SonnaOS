@@ -14,7 +14,7 @@
 #include <drivers/serial.h>
 #include <colors.h>
 
-#define ESTELLA_VERSION "v0.Estella.3.2"
+#define ESTELLA_VERSION "v0.Estella.3.3"
 
 __attribute__((used, section(".limine_requests")))
 static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(4);
@@ -229,7 +229,7 @@ static void run_exception_test(void) {
     // );
 }
 
-void kmain(void) {
+void EstellaEntry(void) {
     serial_init();
     serial_puts("kernel started\n");
     if (!LIMINE_BASE_REVISION_SUPPORTED(limine_base_revision)) hcf();

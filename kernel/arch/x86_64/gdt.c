@@ -7,6 +7,8 @@ static struct gdt_ptr gp;
 
 #define IST_STACK_SIZE 8192
 static uint8_t ist1_stack[IST_STACK_SIZE] __attribute__((aligned(16)));
+static uint8_t ist2_stack[IST_STACK_SIZE] __attribute__((aligned(16)));
+static uint8_t ist3_stack[IST_STACK_SIZE] __attribute__((aligned(16)));
 
 #define KERNEL_STACK_SIZE  (16 * 4096)
 static uint8_t kernel_main_stack[KERNEL_STACK_SIZE] __attribute__((aligned(16)));
@@ -79,8 +81,10 @@ void gdt_init(void) {
     tss_desc->reserved     = 0;
     
     tss.rsp0 = (uint64_t)&kernel_main_stack[KERNEL_STACK_SIZE];
-    tss.ist1 = (uint64_t)&ist1_stack[IST_STACK_SIZE - 32];
 
+    tss.ist1 = (uint64_t)&ist1_stack[IST_STACK_SIZE];
+    tss.ist2 = (uint64_t)&ist2_stack[IST_STACK_SIZE];
+    tss.ist3 = (uint64_t)&ist3_stack[IST_STACK_SIZE];
 
     gp.limit = sizeof(gdt) - 1;
     gp.base  = (uint64_t)&gdt;
