@@ -14,7 +14,7 @@
 #include <drivers/serial.h>
 #include <colors.h>
 
-#define ESTELLA_VERSION "v0.Estella.3.1"
+#define ESTELLA_VERSION "v0.Estella.3.2"
 
 __attribute__((used, section(".limine_requests")))
 static volatile uint64_t limine_base_revision[] = LIMINE_BASE_REVISION(4);
@@ -44,7 +44,7 @@ static volatile struct limine_memmap_request memmap_request = {
 };
 
 __attribute__((used, section(".limine_requests")))
-volatile struct limine_module_request module_request = {
+static volatile struct limine_module_request module_request = {
     .id = LIMINE_MODULE_REQUEST_ID,
     .revision = 0,
 };
@@ -70,7 +70,7 @@ void hcf(void) {
 static void print_system_info(struct limine_framebuffer *fb) {
     fb_print_value("SonnaOS", "https://github.com/eteriaal/SonnaOS \n", COL_TITLE, 0x20B2AA);
     fb_print(ESTELLA_VERSION " x86_64 EFI | limine protocol\n", COL_VERSION);
-    fb_print("Using Spleen font 8x16 .psfu (psf1) \n", COL_INFO);
+    fb_print("Using Spleen font 12x24 .psfu (psf2) \n", COL_INFO);
 
     fb_print("\n", 0);
 
@@ -231,6 +231,7 @@ static void run_exception_test(void) {
 
 void kmain(void) {
     serial_init();
+    serial_puts("kernel started\n");
     if (!LIMINE_BASE_REVISION_SUPPORTED(limine_base_revision)) hcf();
     if (!framebuffer_request.response || framebuffer_request.response->framebuffer_count == 0) hcf();
     if (!hhdm_request.response || !memmap_request.response || !module_request.response) hcf();
@@ -239,16 +240,24 @@ void kmain(void) {
     struct limine_framebuffer *fb = framebuffer_request.response->framebuffers[0];
 
     struct limine_file *font_module;
-    struct psf1_header *font = load_psf1_font(&font_module);
-    if (!font) hcf();
+    struct psf2_header *psf2 = load_psf2_font(module_request, &font_module);
+    if (!psf2) {serial_puts("!psf2\n");hcf();}
 
-    const uint8_t *glyphs = (const uint8_t *)font_module->address;
-    fbtext_init(fb, font, glyphs);
+    font_t font = {
+        .is_psf2 = true,
+        .hdr.psf2 = psf2,
+        .glyphs = (const uint8_t *)font_module->address + psf2->headersize,
+        .width = psf2->width,
+        .height = psf2->height,
+        .line_height = psf2->height + 1,
+        .glyph_count = psf2->length
+    };
+    fbtext_init(fb, &font);
 
-    gdt_init(); fb_print("GDT + TSS initialized\n", COL_SUCCESS_INIT);
-    idt_init(); fb_print("IDT + ISR initialized\n", COL_SUCCESS_INIT);
+    gdt_init(); fb_print("GDT + TSS initialized\n", COL_SUCCESS_INIT); serial_puts("GDT + TSS initialized\n");
+    idt_init(); fb_print("IDT + ISR initialized\n", COL_SUCCESS_INIT); serial_puts("IDT + ISR initialized\n");
     pmm_init(memmap_request.response, hhdm_offset);
-    fb_print("PMM bitmap initialized\n", COL_SUCCESS_INIT);
+    fb_print("PMM bitmap initialized\n", COL_SUCCESS_INIT); serial_puts("PMM bitmap initialized\n");
 
     fb_print("\n", 0);
 
@@ -257,6 +266,7 @@ void kmain(void) {
 
     run_pmm_tests();
 
+    serial_puts("Run exception test\n");
     run_exception_test();
 
     hcf();

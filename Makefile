@@ -81,11 +81,11 @@ $(TARGET): $(OBJECTS) x86-64.lds
 	$(LD) $(LDFLAGS) -o $@ $(OBJECTS)
 
 esp: limine spleen $(TARGET) limine.conf
-	mkdir -p $(ESP_DIR)/EFI/BOOT $(ESP_DIR)/boot/limine
+	mkdir -p $(ESP_DIR)/EFI/BOOT $(ESP_DIR)/boot/limine $(ESP_DIR)/boot/spleen
 	cp $(LIMINE_DIR)/BOOTX64.EFI $(ESP_DIR)/EFI/BOOT/BOOTX64.EFI
 	cp $(TARGET) $(ESP_DIR)/boot/estella.elf
 	cp limine.conf $(ESP_DIR)/boot/limine/limine.conf
-	cp -r $(SPLEEN_DIR) $(ESP_DIR)/boot/$(SPLEEN_DIR)
+	cp $(SPLEEN_DIR)/spleen-12x24.psfu $(ESP_DIR)/boot/$(SPLEEN_DIR)/
 
 run: esp
 	$(QEMU) $(QEMU_FLAGS) \

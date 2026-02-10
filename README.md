@@ -9,17 +9,15 @@ Writing an operating system because I want to occupy my time...
 - GDT + TSS
 - IDT + exception handling
 - Simple bitmap PMM with alloc/free tests
-- Framebuffer console (Spleen 8x16 PSF1 font)
+- Framebuffer console (Spleen 12x24 PSF2 font)
 - Debug output: boot info, memory map, PMM tests
 
 Next:
-- IRQ handling
-- PSF2 font support
-- Serial console for better debugging
-- Paging + virtual memory + kernel heap  
+- Paging + virtual memory + kernel heap
+- APIC, timer, keyboard
 
 ---
-![screenshot](sonnaos.png)
+![screenshot](SonnaOS.png)
 ---
 
 ### Requirements
