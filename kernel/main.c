@@ -206,8 +206,30 @@ static void run_pmm_tests(void) {
 }
 
 static void run_exception_test(void) {
-    fb_print("Testing IDT: invalid opcode (ud2), expected kernel panic\n", COL_TEST_HDR);
+    fb_print("Testing #UD (invalid opcode (ud2))...\n", COL_TEST_HDR);
     asm volatile("ud2");
+
+    // fb_print("Testing #DE (divide by zero)...\n", COL_TEST_HDR);
+    // asm volatile("mov $0, %%eax; idiv %%eax" : : : "eax");
+
+    // fb_print("Testing #GP (invalid selector)...\n", 0xFFFF00);
+    // asm volatile("mov $0x28, %%ax; mov %%ax, %%fs; mov %%fs:0, %%rax" : : : "rax", "ax");
+
+    // fb_print("Testing #PF (dereference null)...\n", 0xFFFF00);
+    // volatile uint64_t *null_ptr = (uint64_t *)0x0;
+    // uint64_t dummy = *null_ptr;
+
+    // fb_print("Testing #BP (int3)...\n", 0xFFFF00);
+    // asm volatile("int3");
+
+    // fb_print("Testing #TS (invalid TSS)...\n", 0xFFFF00);
+    // asm volatile(
+    //     "mov $0x28, %%ax\n\t"
+    //     "ltr %%ax\n\t"
+    //     "mov $0xFFFF, %%ax\n\t"
+    //     "ltr %%ax"
+    //     : : : "ax"
+    // );
 }
 
 void kmain(void) {
