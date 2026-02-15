@@ -1,5 +1,5 @@
-#ifndef ESTELLA_MM_H
-#define ESTELLA_MM_H
+#ifndef ESTELLA_MM_VMM_H
+#define ESTELLA_MM_VMM_H
 
 #include <stdint.h>
 #include <stddef.h>
