@@ -1,6 +1,11 @@
 # SonnaOS
 Writing an operating system because I want to occupy my time...  
 
+### Hardware Requirements
+- **Firmware**: UEFI
+- **CPU**: 64-bit x86 processor with x2APIC support
+- **ACPI 2.0+**
+
 ## Kernel
 **Estella** - x86_64 EFI kernel using the Limine bootloader protocol.
 
@@ -17,8 +22,7 @@ Writing an operating system because I want to occupy my time...
 - Framebuffer text mode
 
 ### Next:
-- LAPIC Timer (calibration)
-- Maybe userspace / maybe heap, etc.
+- x2APIC TSC-deadline
 
 ---
 ![screenshot](sonnaos.png)

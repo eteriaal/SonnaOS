@@ -1,8 +1,8 @@
-#include "mm/vmm.h"
 #include <stdint.h>
 #include <stddef.h>
 
 #include <arch/x86_64/acpi.h>
+#include <mm/vmm.h>
 
 extern uint64_t hhdm_offset;
 

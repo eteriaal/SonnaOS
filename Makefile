@@ -6,8 +6,7 @@ CFLAGS = -target x86_64-unknown-elf \
          -fno-stack-protector -fshort-wchar -Wall -O2 \
 		 -Ikernel \
 		 -MMD -MP -mcmodel=kernel -fno-omit-frame-pointer \
-		 -mno-sse -mno-sse2 -mno-avx -mno-avx2 -mno-avx512f
-
+		 -mno-sse
 LDFLAGS = -T x86-64.lds -nostdlib
 
 LIMINE_DIR ?= ./limine
