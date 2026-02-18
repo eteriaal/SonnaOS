@@ -1,4 +1,3 @@
-#include "colors.h"
 #include <stopwatch.h>
 #include <drivers/fbtext.h>
 #include <drivers/serial.h>

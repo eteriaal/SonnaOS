@@ -129,10 +129,10 @@ static void print_system_info(struct limine_framebuffer *fb) {
 }
 
 static void print_memory_info(void) {
-    size_t total  = pmm_get_total_frames();
+    size_t total = pmm_get_total_frames();
     size_t usable = pmm_get_usable_frames();
-    size_t free   = pmm_get_free_frames();
-    size_t used   = pmm_get_used_frames();
+    size_t free = pmm_get_free_frames();
+    size_t used = pmm_get_used_frames();
 
     char buf[80];
 
@@ -217,40 +217,22 @@ fail:
 void run_vmm_tests(void) {
     uint64_t vaddr = 0xFFFF900000000000ULL;
     void *phys = pmm_alloc();
-    if (!phys) goto fail;
+    if (!phys) {
+        fb_print("VMM tests: FAILED\n", COL_FAIL);
+        serial_puts("VMM tests FAILED\n");
+    }
 
-    if (!vmm_map(vaddr, (uint64_t)phys, PTE_KERNEL_RW)) goto fail_free;
+    if (!vmm_map(vaddr, (uint64_t)phys, PTE_KERNEL_RW)) pmm_free(phys);
 
     uint64_t *ptr = (uint64_t *)vaddr;
     *ptr = 0xDEADBEEFCAFEBABELL;
-    if (*ptr != 0xDEADBEEFCAFEBABELL) goto fail_unmap;
+    if (*ptr != 0xDEADBEEFCAFEBABELL) vmm_unmap(vaddr);
 
     vmm_unmap(vaddr);
     pmm_free(phys);
 
     fb_print("VMM tests: OK\n", COL_SUCCESS_INIT);
     serial_puts("VMM tests OK\n");
-    return;
-
-fail_unmap:
-    vmm_unmap(vaddr);
-fail_free:
-    pmm_free(phys);
-fail:
-    fb_print("VMM tests: FAILED\n", COL_FAIL);
-    serial_puts("VMM tests FAILED\n");
-}
-
-static void trigger_panic(void) {
-    fb_print("Testing #TS (invalid TSS) - 13 vector...\n", 0xFFFF00);
-    serial_puts("Testing #TS (invalid TSS) - 13 vector...\n");
-    asm volatile(
-        "mov $0x28, %%ax\n\t"
-        "ltr %%ax\n\t"
-        "mov $0xFFFF, %%ax\n\t"
-        "ltr %%ax"
-        : : : "ax"
-    );
 }
 
 void EstellaEntry(void) {
@@ -269,7 +251,7 @@ void EstellaEntry(void) {
     struct limine_file *font_module;
     struct psf2_header *psf2 = load_psf2_font(module_request, &font_module);
     if (!psf2) {
-        serial_puts("!psf2\n");
+        serial_puts("failed to load font?\n");
         hcf();
     }
     font_t font = {
@@ -293,20 +275,16 @@ void EstellaEntry(void) {
     keyboard_init(); fb_print("  PS/2 keyboard driver initialized\n", COL_SUCCESS_INIT);
     stopwatch_init();
 
-    run_pmm_tests();
-    run_vmm_tests();
-
-    fb_print("\n", 0);
-    print_system_info(fb);
-    fb_print("\n", 0);
-    print_memory_info();
+    run_pmm_tests(); run_vmm_tests();
+    fb_print("\n", 0); print_system_info(fb);
+    fb_print("\n", 0); print_memory_info();
 
     // Enabling interrupts
     asm volatile("sti");
 
     fb_print("Controls:\n", COL_INFO);
-    fb_print("  t : Start / Pause stopwatch\n", COL_INFO);
-    fb_print("  q : Trigger kernel panic (from #TS)\n", COL_INFO);
+    fb_print("t : Start / Pause stopwatch\n", COL_INFO);
+    fb_print("q : Trigger kernel panic (from #UD)\n", COL_INFO);
     fb_print("\n", 0);
 
     serial_puts("Controls: t = toggle stopwatch, q = trigger panic\n");
@@ -330,7 +308,7 @@ void EstellaEntry(void) {
                     case 'Q':
                         fb_print("\nTriggering test panic...\n", COL_FAIL);
                         serial_puts("\nTriggering test panic...\n");
-                        trigger_panic();
+                        asm ("ud2");
                         break;
                     default:
                         break;
