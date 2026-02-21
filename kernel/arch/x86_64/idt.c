@@ -23,14 +23,11 @@ void exception_handler(uint64_t vector, uint64_t error_code, uint64_t rip, uint6
     fb_print("KERNEL PANIC!\n", 0xFF5555);
     serial_puts("KERNEL PANIC!\n");
 
-    char buf[32] = {0};
+    char buf[32];
 
-    u64_to_dec(vector, buf);
-    fb_print_value("Vector : ", buf, 0xAAAAAA, 0xFFFFFF);
-    serial_puts("Vector : ");
-    serial_puts(buf);
+    fb_print("Vector : ", 0xAAAAAA);
+    fb_print_number(vector, 0xAAAAAA);
     fb_print("   ", 0xAAAAAA);
-    serial_puts("   ");
     if (vector < 32) {
         fb_print("(exception)", 0xAAAAAA);
         serial_puts("(exception)");
@@ -38,61 +35,70 @@ void exception_handler(uint64_t vector, uint64_t error_code, uint64_t rip, uint6
     fb_print("\n", 0);
     serial_puts("\n");
 
+    fb_print("Error  : ", 0xAAAAAA);
     u64_to_hex(error_code, buf);
-    fb_print_value("Error  : ", buf, 0xAAAAAA, 0xFFFFFF);
+    fb_print(buf, 0xFFFFFF);
+    fb_print("\n", 0);
     serial_puts("Error  : ");
     serial_puts(buf);
-    fb_print("\n", 0);
     serial_puts("\n");
 
+    fb_print("RIP    : ", 0xAAAAAA);
     u64_to_hex(rip, buf);
-    fb_print_value("RIP    : ", buf, 0xAAAAAA, 0xFFFFFF);
+    fb_print(buf, 0xFFFFFF);
+    fb_print("\n", 0);
     serial_puts("RIP    : ");
     serial_puts(buf);
-    fb_print("\n", 0);
     serial_puts("\n");
 
+    fb_print("CS     : ", 0xAAAAAA);
     u64_to_hex(cs, buf);
-    fb_print_value("CS     : ", buf, 0xAAAAAA, 0xFFFFFF);
+    fb_print(buf, 0xFFFFFF);
+    fb_print("  (ring ", 0xAAAAAA);
+    fb_print_number(cs & 3, 0xAAAAAA);
+    fb_print(")\n", 0xAAAAAA);
     serial_puts("CS     : ");
     serial_puts(buf);
-    fb_print("  (ring ", 0xAAAAAA);
     serial_puts("  (ring ");
     u64_to_dec(cs & 3, buf);
-    fb_print(buf, 0xAAAAAA);
     serial_puts(buf);
-    fb_print(")\n", 0xAAAAAA);
     serial_puts(")\n");
 
+    fb_print("RFLAGS : ", 0xAAAAAA);
     u64_to_hex(rflags, buf);
-    fb_print_value("RFLAGS : ", buf, 0xAAAAAA, 0xFFFFFF);
+    fb_print(buf, 0xFFFFFF);
+    fb_print("\n", 0);
     serial_puts("RFLAGS : ");
     serial_puts(buf);
-    fb_print("\n", 0);
     serial_puts("\n");
 
+    fb_print("RSP    : ", 0xAAAAAA);
     u64_to_hex(rsp, buf);
-    fb_print_value("RSP    : ", buf, 0xAAAAAA, 0xFFFFFF);
+    fb_print(buf, 0xFFFFFF);
+    fb_print("\n", 0);
     serial_puts("RSP    : ");
     serial_puts(buf);
-    fb_print("\n", 0);
     serial_puts("\n");
 
+    fb_print("SS     : ", 0xAAAAAA);
     u64_to_hex(ss, buf);
-    fb_print_value("SS     : ", buf, 0xAAAAAA, 0xFFFFFF);
+    fb_print(buf, 0xFFFFFF);
+    fb_print("\n", 0);
     serial_puts("SS     : ");
     serial_puts(buf);
-    fb_print("\n", 0);
     serial_puts("\n");
 
     if (vector == 14) {
         uint64_t cr2;
         asm volatile("mov %%cr2, %0" : "=r"(cr2));
+        
+        fb_print("CR2    : ", 0xAAAAAA);
         u64_to_hex(cr2, buf);
-        fb_print_value("CR2    : ", buf, 0xAAAAAA, 0xFF7777);
+        fb_print(buf, 0xFF7777);
+        fb_print("  -> ", 0xAAAAAA);
+
         serial_puts("CR2    : ");
         serial_puts(buf);
-        fb_print("  -> ", 0xAAAAAA);
         serial_puts("  -> ");
 
         if (error_code & 1) {
@@ -102,6 +108,7 @@ void exception_handler(uint64_t vector, uint64_t error_code, uint64_t rip, uint6
             fb_print("page not present", 0xFF7777);
             serial_puts("page not present");
         }
+
         if (error_code & 2) {
             fb_print(", write attempt", 0xFF7777);
             serial_puts(", write attempt");

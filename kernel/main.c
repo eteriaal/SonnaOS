@@ -79,7 +79,8 @@ void hcf(void) {
 }
 
 static void print_system_info(struct limine_framebuffer *fb) {
-    fb_print_value("SonnaOS", "https://github.com/aprentxdev/SonnaOS", COL_TITLE, 0x20B2AA);
+    fb_print("SonnaOS ", COL_TITLE);
+    fb_print("https://github.com/aprentxdev/SonnaOS", 0x20B2AA);
 
     if (firmware_type_request.response) {
         const char *fw = "Unknown";
@@ -89,7 +90,8 @@ static void print_system_info(struct limine_framebuffer *fb) {
             case LIMINE_FIRMWARE_TYPE_EFI64: fw = "EFI64"; break;
             case LIMINE_FIRMWARE_TYPE_SBI: fw = "SBI"; break;
         }
-        fb_print_value("   Firmware:   ", fw, COL_LABEL, COL_VALUE);
+        fb_print("   Firmware:   ", COL_LABEL);
+        fb_print(fw, COL_VALUE);
         fb_print("\n", 0);
 
         serial_puts("Firmware: ");
@@ -98,8 +100,7 @@ static void print_system_info(struct limine_framebuffer *fb) {
     }
 
     fb_print(ESTELLA_VERSION " x86_64 EFI | limine protocol", COL_VERSION);
-
-
+    
     if (bootloader_info_request.response) {
         char bootloader_str[64];
         {
@@ -119,7 +120,9 @@ static void print_system_info(struct limine_framebuffer *fb) {
 
             bootloader_str[pos < sizeof(bootloader_str) ? pos : sizeof(bootloader_str) - 1] = '\0'; 
         }
-        fb_print_value("     Bootloader: ", bootloader_str, COL_LABEL, COL_VALUE);
+
+        fb_print("     Bootloader: ", COL_LABEL);
+        fb_print(bootloader_str, COL_VALUE);
         fb_print("\n", 0);
 
         serial_puts("Bootloader: ");
@@ -134,38 +137,33 @@ static void print_memory_info(void) {
     size_t free = pmm_get_free_frames();
     size_t used = pmm_get_used_frames();
 
-    char buf[80];
-
     fb_print("Memory Overview\n", COL_SECTION_TITLE);
 
-    u64_to_dec(total * PAGE_SIZE / 1024 / 1024, buf);
-    strcat(buf, " MiB (");
-    u64_to_dec(total, buf + strlen(buf));
-    strcat(buf, " pages)");
-    fb_print_value("> Total   ", buf, COL_LABEL, COL_VALUE);
-    fb_print("\n", 0);
+    fb_print("> Total   ", COL_LABEL);
+    fb_print_number(total * PAGE_SIZE / 1024 / 1024, COL_VALUE);
+    fb_print(" MiB (", COL_VALUE);
+    fb_print_number(total, COL_VALUE);
+    fb_print(" pages)\n", COL_VALUE);
 
-    u64_to_dec(usable * PAGE_SIZE / 1024 / 1024, buf);
-    strcat(buf, " MiB (");
-    u64_to_dec(usable, buf + strlen(buf));
-    strcat(buf, " pages)");
-    fb_print_value("> Usable  ", buf, COL_LABEL, COL_VALUE);
-    fb_print("\n", 0);
+    fb_print("> Usable  ", COL_LABEL);
+    fb_print_number(usable * PAGE_SIZE / 1024 / 1024, COL_VALUE);
+    fb_print(" MiB (", COL_VALUE);
+    fb_print_number(usable, COL_VALUE);
+    fb_print(" pages)\n", COL_VALUE);
 
-    u64_to_dec(used * PAGE_SIZE / 1024 / 1024, buf);
-    strcat(buf, " MiB (");
-    u64_to_dec(used, buf + strlen(buf));
-    strcat(buf, " pages)");
-    fb_print_value("> Used    ", buf, COL_LABEL, COL_USED);
-    fb_print("\n", 0);
+    fb_print("> Used    ", COL_LABEL);
+    fb_print_number(used * PAGE_SIZE / 1024 / 1024, COL_USED);
+    fb_print(" MiB (", COL_USED);
+    fb_print_number(used, COL_USED);
+    fb_print(" pages)\n", COL_USED);
 
-    u64_to_dec(free * PAGE_SIZE / 1024 / 1024, buf);
-    strcat(buf, " MiB (");
-    u64_to_dec(free, buf + strlen(buf));
-    strcat(buf, " pages)");
-    fb_print_value("> Free    ", buf, COL_LABEL, COL_FREE);
-    fb_print("\n\n", 0);
+    fb_print("> Free    ", COL_LABEL);
+    fb_print_number(free * PAGE_SIZE / 1024 / 1024, COL_FREE);
+    fb_print(" MiB (", COL_FREE);
+    fb_print_number(free, COL_FREE);
+    fb_print(" pages)\n\n", COL_FREE);
 
+    char buf[80];
     serial_puts("Memory: total ");
     u64_to_dec(total * PAGE_SIZE / 1024 / 1024, buf);
     serial_puts(buf);
@@ -268,11 +266,11 @@ void EstellaEntry(void) {
 
     // init everything
     gdt_init(); fb_print("GDT with TSS initialized;", COL_SUCCESS_INIT);
-    idt_init(); fb_print("  IDT initialized;", COL_SUCCESS_INIT);
+    idt_init(); fb_print(" IDT initialized;", COL_SUCCESS_INIT);
     pmm_init(); fb_print("  PMM initialized;", COL_SUCCESS_INIT); 
     vmm_init(); fb_print("  VMM initialized;", COL_SUCCESS_INIT); 
     apic_init(); fb_print("  APIC initialized;", COL_SUCCESS_INIT);
-    keyboard_init(); fb_print("  PS/2 keyboard driver initialized\n", COL_SUCCESS_INIT);
+    keyboard_init(); fb_print(" PS/2 keyboard driver initialized\n", COL_SUCCESS_INIT);
     stopwatch_init();
 
     run_pmm_tests(); run_vmm_tests();

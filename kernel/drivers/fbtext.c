@@ -1,6 +1,6 @@
-#include <klib/string.h>
 #include <drivers/fbtext.h>
 #include <drivers/font.h>
+#include <klib/string.h>
 
 #define LEFT_MARGIN 20
 
@@ -11,10 +11,9 @@ static size_t g_cursor_y = 15;
 static bool overwrite = false;
 static size_t overwrite_pos = 0;
 
-
 void fbtext_init(struct limine_framebuffer *fb, font_t *font)
 {
-    g_fb = fb;
+    g_fb   = fb;
     g_font = font;
 
     if (!font || !font->glyphs || font->width == 0 || font->height == 0) {
@@ -25,19 +24,13 @@ void fbtext_init(struct limine_framebuffer *fb, font_t *font)
     g_cursor_y = 15;
 }
 
-void fb_set_y(size_t y)
-{
-    g_cursor_y = y;
-    g_cursor_x = LEFT_MARGIN;
-}
-
-static void fb_newline(void)
+static inline void fb_newline(void)
 {
     g_cursor_x = LEFT_MARGIN;
     g_cursor_y += g_font->line_height;
 }
 
-static void fb_advance(size_t pixels)
+static inline void fb_advance(size_t pixels)
 {
     g_cursor_x += pixels;
     if (g_cursor_x + g_font->width > g_fb->width) {
@@ -70,9 +63,13 @@ static void fb_clear_area(size_t x, size_t y, size_t width, size_t height, uint3
 
 void fb_put_char(uint32_t codepoint, uint32_t color)
 {
-    if (!g_fb || !g_font || !g_font->glyphs) return;
+    if (!g_fb || !g_font || !g_font->glyphs) {
+        return;
+    }
 
-    if (codepoint > 255) codepoint = '?';
+    if (codepoint > 255) {
+        codepoint = '?';
+    }
 
     if (codepoint == '\n') {
         fb_newline();
@@ -120,16 +117,14 @@ void fb_put_char(uint32_t codepoint, uint32_t color)
     }
 
     const uint8_t *glyph = g_font->glyphs + glyph_offset;
-
     uint32_t bytes_per_row = (g_font->width + 7) / 8;
 
     for (uint32_t row = 0; row < g_font->height; row++) {
         for (uint32_t col = 0; col < g_font->width; col++) {
-
-            uint32_t byte_index = row * bytes_per_row + (col / 8);
+            uint32_t byte_idx = row * bytes_per_row + (col / 8);
             uint8_t bit_mask = 0x80 >> (col % 8);
 
-            if (glyph[byte_index] & bit_mask) {
+            if (glyph[byte_idx] & bit_mask) {
                 size_t px = g_cursor_x + col;
                 size_t py = g_cursor_y + row;
                 if (px < g_fb->width && py < g_fb->height) {
@@ -147,23 +142,36 @@ void fb_print(const char *str, uint32_t color)
     if (!str) return;
 
     while (*str) {
-        fb_put_char((uint8_t)*str, color);
-        str++;
+        fb_put_char((uint8_t)*str++, color);
     }
 }
 
-void fb_print_value(const char *label, const char *value, uint32_t label_color, uint32_t value_color)
+void fb_print_at(const char *str, uint32_t color, int x, int y)
 {
-    if (!label) return;
+    if (x < 0 || y < 0) return;
 
-    fb_print(label, label_color);
+    size_t old_x = g_cursor_x;
+    size_t old_y = g_cursor_y;
 
-    size_t label_len = strlen(label);
-    size_t desired_x = LEFT_MARGIN + (label_len + 1) * g_font->width;
+    g_cursor_x = (size_t)x;
+    g_cursor_y = (size_t)y;
 
-    if (g_cursor_x < desired_x)
-        g_cursor_x = desired_x;
+    fb_print(str, color);
 
-    if (value && *value)
-        fb_print(value, value_color);
+    g_cursor_x = old_x;
+    g_cursor_y = old_y;
+}
+
+void fb_print_number(uint64_t n, uint32_t color)
+{
+    char buf[32];
+    char *p = buf + sizeof(buf);
+    *--p = '\0';
+
+    do {
+        *--p = '0' + (n % 10);
+        n /= 10;
+    } while (n != 0);
+
+    fb_print(p, color);
 }

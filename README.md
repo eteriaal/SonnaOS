@@ -29,6 +29,7 @@ Writing an operating system to explore low-level architecture and hardware progr
 - ✅ Serial (COM1) debug output
 - ✅ Framebuffer text console (PSF2 font: Spleen 12x24)
 
+kernel shell
 
 ### Requirements
 - clang + ld.lld
